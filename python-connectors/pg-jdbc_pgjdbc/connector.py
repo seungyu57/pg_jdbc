@@ -1,128 +1,47 @@
-# This file is the actual code for the custom Python dataset pg-jdbc_pgjdbc
-
-# import the base class for the custom dataset
-from six.moves import xrange
 from dataiku.connector import Connector
 
-"""
-A custom Python dataset is a subclass of Connector.
+from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
 
-The parameters it expects and some flags to control its handling by DSS are
-specified in the connector.json file.
+FIXED_HOST = "localhost"
+FIXED_PORT = 5432
+FIXED_DB = "dataiku"
 
-Note: the name of the class itself is not relevant.
-"""
-class MyConnector(Connector):
+# Hidden (UI 미노출) 기본 JDBC 드라이버 경로
+DEFAULT_JAR_PATH = "/data/test_ssg/postgresql-42.7.10.jar"
 
-    def __init__(self, config, plugin_config):
-        """
-        The configuration parameters set up by the user in the settings tab of the
-        dataset are passed as a json object 'config' to the constructor.
-        The static configuration parameters set up by the developer in the optional
-        file settings.json at the root of the plugin directory are passed as a json
-        object 'plugin_config' to the constructor
-        """
-        Connector.__init__(self, config, plugin_config)  # pass the parameters to the base class
 
-        # perform some more initialization
-        self.theparam1 = self.config.get("parameter1", "defaultValue")
-
+class PgJdbcConnector(Connector):
     def get_read_schema(self):
-        """
-        Returns the schema that this connector generates when returning rows.
-
-        The returned schema may be None if the schema is not known in advance.
-        In that case, the dataset schema will be infered from the first rows.
-
-        If you do provide a schema here, all columns defined in the schema
-        will always be present in the output (with None value),
-        even if you don't provide a value in generate_rows
-
-        The schema must be a dict, with a single key: "columns", containing an array of
-        {'name':name, 'type' : type}.
-
-        Example:
-            return {"columns" : [ {"name": "col1", "type" : "string"}, {"name" :"col2", "type" : "float"}]}
-
-        Supported types are: string, int, bigint, float, double, date, boolean
-        """
-
-        # In this example, we don't specify a schema here, so DSS will infer the schema
-        # from the columns actually returned by the generate_rows method
+        # 스키마는 첫 rows로 infer 가능. (DSS가 필요하면 알아서 추론)
         return None
 
-    def generate_rows(self, dataset_schema=None, dataset_partitioning=None,
-                            partition_id=None, records_limit = -1):
-        """
-        The main reading method.
+    def generate_rows(self, dataset_schema=None, dataset_partitioning=None, partition_id=None, records_limit=None):
+        jar_path = self.config.get("jar_path") or DEFAULT_JAR_PATH
+        user = self.config.get("user")
+        password = self.config.get("password")
+        schema = self.config.get("schema")
+        table = self.config.get("table")
 
-        Returns a generator over the rows of the dataset (or partition)
-        Each yielded row must be a dictionary, indexed by column name.
+        # ✅ 핵심: schema/table 선택 전이면 read_rows 호출돼도 예외 내지 말고 빈 결과로 종료
+        if not schema or not table:
+            return
 
-        The dataset schema and partitioning are given for information purpose.
-        """
-        for i in xrange(1,10):
-            yield { "first_col" : str(i), "my_string" : "Yes" }
+        cfg_limit = int(self.config.get("limit", 1000))
+        limit = records_limit if records_limit is not None else cfg_limit
+        if limit == 0:
+            limit = 10_000_000  # 무제한은 위험해서 일단 큰 값 타협
 
+        cfg = PgJdbcConfig(
+            jar_path=jar_path,
+            host=FIXED_HOST,
+            port=FIXED_PORT,
+            database=FIXED_DB,
+            user=user,
+            password=password
+        )
 
-    def get_writer(self, dataset_schema=None, dataset_partitioning=None,
-                         partition_id=None, write_mode="OVERWRITE"):
-        """
-        Returns a writer object to write in the dataset (or in a partition).
+        cli = PgJdbcClient(cfg)
+        cols, rows = cli.fetch_table(schema=schema, table=table, limit=limit)
 
-        The dataset_schema given here will match the the rows given to the writer below.
-
-        write_mode can either be OVERWRITE or APPEND.
-        It will not be APPEND unless the plugin explicitly supports append mode. See flag supportAppend in connector.json.
-        If applicable, the write_mode should be handled in the plugin code.
-
-        Note: the writer is responsible for clearing the partition, if relevant.
-        """
-        raise NotImplementedError
-
-
-    def get_partitioning(self):
-        """
-        Return the partitioning schema that the connector defines.
-        """
-        raise NotImplementedError
-
-
-    def list_partitions(self, partitioning):
-        """Return the list of partitions for the partitioning scheme
-        passed as parameter"""
-        return []
-
-
-    def partition_exists(self, partitioning, partition_id):
-        """Return whether the partition passed as parameter exists
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
-        raise NotImplementedError
-
-
-    def get_records_count(self, partitioning=None, partition_id=None):
-        """
-        Returns the count of records for the dataset (or a partition).
-
-        Implementation is only required if the corresponding flag is set to True
-        in the connector definition
-        """
-        raise NotImplementedError
-
-
-class CustomDatasetWriter(object):
-    def __init__(self):
-        pass
-
-    def write_row(self, row):
-        """
-        Row is a tuple with N + 1 elements matching the schema passed to get_writer.
-        The last element is a dict of columns not found in the schema
-        """
-        raise NotImplementedError
-
-    def close(self):
-        pass
+        for r in rows:
+            yield dict(zip(cols, r))

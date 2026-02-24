@@ -1,64 +1,71 @@
-/* This file is the descriptor for the Custom python dataset pg-jdbc_pgjdbc */
 {
-    "meta" : {
-        // label: name of the dataset type as displayed, should be short
-        "label": "Custom dataset pg-jdbc_pgjdbc",
+  "meta": {
+    "label": "PostgreSQL(JDBC) test",
+    "description": "Read PostgreSQL tables through JDBC",
+    "icon": "icon-database"
+  },
+  "readable": true,
+  "writable": false,
 
-        // description: longer string to help end users understand what this dataset type is
-        "description": "",
-
-        // icon: must be one of the FontAwesome 5.15.4 icons, complete list here at https://fontawesome.com/v5/docs/
-        "icon": "fas fa-puzzle-piece"
+  "paramsPythonSetup": "params.py",
+  "params": [
+    {
+      "name": "sep_auth",
+      "label": "Authentication",
+      "type": "SEPARATOR"
     },
 
-    /* Can this connector read data ? */
-    "readable": true,
-    /* Can this connector write data ? */
-    "writable": false,
-    /* Can this connector append data instead of overwriting it ? */
-    "supportAppend": false,
+    {
+      "name": "jar_path",
+      "label": "JDBC driver jar path",
+      "type": "STRING",
+      "defaultValue": "/data/test_ssg/postgresql-42.7.10.jar",
+      "mandatory": false,
+      "visibilityCondition": "0",
+      "description": "(숨김) 서버에 고정된 JDBC 드라이버 경로를 사용합니다."
+    },
 
+    {
+      "name": "user",
+      "label": "User",
+      "type": "STRING",
+      "mandatory": true,
+      "description": "PostgreSQL 사용자명"
+    },
+    {
+      "name": "password",
+      "label": "Password",
+      "type": "PASSWORD",
+      "mandatory": true,
+      "description": "PostgreSQL 비밀번호"
+    },
 
-    /* params:
-    DSS will generate a formular from this list of requested parameters.
-    Your component code can then access the value provided by users using the "name" field of each parameter.
+    {
+      "name": "schema",
+      "label": "Schema",
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["user", "password"],
+      "description": "User/Password 입력 후 스키마 목록이 자동 갱신됩니다."
+    },
+    {
+      "name": "table",
+      "label": "Table",
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["schema", "user", "password"],
+      "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
+    },
 
-    Available parameter types include:
-    STRING, INT, DOUBLE, BOOLEAN, DATE, SELECT, TEXTAREA, PRESET and others.
-
-    For the full list and for more details, see the documentation: https://doc.dataiku.com/dss/latest/plugins/reference/params.html
-    */
-    "params": [
-        {
-            "name": "parameter1",
-            "label": "User-readable name",
-            "type": "STRING",
-            "description": "Some documentation for parameter1",
-            "mandatory": true
-        },
-        {
-            "name": "parameter2",
-            "type": "INT",
-            "defaultValue" : 42
-            /* Note that standard json parsing will return it as a double in Python (instead of an int), so you need to write
-               int(self.config()['parameter2'])
-            */
-        },
-
-        /* A "SELECT" parameter is a multi-choice selector. Choices are specified using the selectChoice field*/
-        {
-            "name": "parameter8",
-            "type": "SELECT",
-            "selectChoices": [
-                {
-                    "value": "val_x",
-                    "label": "display name for val_x"
-                },
-                {
-                    "value": "val_y",
-                    "label": "display name for val_y"
-                }
-            ]
-        }
-    ]
+    {
+      "name": "limit",
+      "label": "Preview / read limit (0 = no limit)",
+      "type": "INT",
+      "defaultValue": 1000,
+      "mandatory": false,
+      "description": "0이면 제한 없음(대용량 주의)."
+    }
+  ]
 }
