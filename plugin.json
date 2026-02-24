@@ -1,25 +1,24 @@
 {
-    "id": "pg-jdbc",
-    "version": "0.0.1",
-    "meta": {
-        "label": "Pg jdbc",
-        "description": "",
-        "author": "ssg",
-        "icon": "fas fa-puzzle-piece",
-        "recipesCategory": "",
-        "tags": [],
-        "url": "",
-        "licenseInfo": "Apache Software License"
-    },
-
-    "components": [
-        {
-            "id": "pg_jdbc",
-            "type": "DATASET",
-            "meta": {
-                "label": "PostgreSQL(JDBC)",
-                "description": "Read PostgreSQL tables through JDBC"
-            }
-        }
-    ]
+  "id": "pg-jdbc",
+  "version": "0.0.2",
+  "meta": {
+    "label": "Pg jdbc",
+    "description": "",
+    "author": "ssg",
+    "icon": "fas fa-puzzle-piece",
+    "recipesCategory": "",
+    "tags": [],
+    "url": "",
+    "licenseInfo": "Apache Software License"
+  },
+  "components": [
+    {
+      "id": "pgjdbc",
+      "type": "DATASET",
+      "meta": {
+        "label": "PostgreSQL(JDBC)",
+        "description": "Read PostgreSQL tables through JDBC"
+      }
+    }
+  ]
 }
