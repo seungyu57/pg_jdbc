@@ -1,6 +1,6 @@
 {
   "id": "pg-jdbc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "meta": {
     "label": "Pg jdbc",
     "description": "",
@@ -11,11 +11,6 @@
     "url": "",
     "licenseInfo": "Apache Software License"
   },
-
-  "config": {
-    "jar_path": "/data/jdbc/postgresql-42.7.10.jar"
-  },
-
   "components": [
     {
       "id": "pgjdbc",
