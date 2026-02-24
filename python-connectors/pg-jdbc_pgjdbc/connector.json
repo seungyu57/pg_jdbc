@@ -14,17 +14,6 @@
       "label": "Authentication",
       "type": "SEPARATOR"
     },
-
-    {
-      "name": "jar_path",
-      "label": "JDBC driver jar path",
-      "type": "STRING",
-      "defaultValue": "/data/test_ssg/postgresql-42.7.10.jar",
-      "mandatory": false,
-      "visibilityCondition": "0",
-      "description": "(숨김) 서버에 고정된 JDBC 드라이버 경로를 사용합니다."
-    },
-
     {
       "name": "user",
       "label": "User",
@@ -39,7 +28,6 @@
       "mandatory": true,
       "description": "PostgreSQL 비밀번호"
     },
-
     {
       "name": "schema",
       "label": "Schema",
@@ -58,7 +46,6 @@
       "triggerParameters": ["schema", "user", "password"],
       "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
     },
-
     {
       "name": "limit",
       "label": "Preview / read limit (0 = no limit)",
