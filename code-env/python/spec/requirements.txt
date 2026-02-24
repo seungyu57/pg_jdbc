@@ -1,0 +1,3 @@
+JPype1==1.6.0
+JayDeBeApi==1.2.3
+pg_jdbc_lib==0.1.0
