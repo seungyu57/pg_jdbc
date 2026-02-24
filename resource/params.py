@@ -1,23 +1,38 @@
 # resource/params.py
 
+# ---- 고정 접속정보(원래대로) ----
 FIXED_HOST = "localhost"
 FIXED_PORT = 5432
 FIXED_DB = "dataiku"
-DEFAULT_JAR_PATH = "/data/test_ssg/postgresql-42.7.10.jar"
 
-def _build_client(config, plugin_config):
-    # Dataiku custom UI 컨텍스트에서 안전하게: 함수 내부 import
+# ---- jar path는 plugin.json의 config.jar_path "단 한 곳" ----
+JAR_PLUGIN_KEY = "jar_path"
+
+
+def _import_pg_jdbc():
+    # custom UI 컨텍스트에서 안전하게: 함수 내부 import + 구조 흡수
     try:
         from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
+        return PgJdbcConfig, PgJdbcClient
     except Exception:
-        # 라이브러리가 코드환경에 설치 안 된 상태면 choices 비움
+        from pg_jdbc_lib import PgJdbcConfig, PgJdbcClient
+        return PgJdbcConfig, PgJdbcClient
+
+
+def _get_jar_path(plugin_config):
+    return (plugin_config or {}).get(JAR_PLUGIN_KEY)
+
+
+def _build_client(config, plugin_config):
+    try:
+        PgJdbcConfig, PgJdbcClient = _import_pg_jdbc()
+    except Exception:
         return None
 
-    jar_path = (
-        config.get("jar_path")
-        or plugin_config.get("jar_path")
-        or DEFAULT_JAR_PATH
-    )
+    jar_path = _get_jar_path(plugin_config)
+    if not jar_path:
+        return None
+
     user = config.get("user")
     password = config.get("password")
 
@@ -34,7 +49,11 @@ def _build_client(config, plugin_config):
     )
     return PgJdbcClient(cfg)
 
+
 def do(payload, config, plugin_config, inputs):
+    """
+    MUST return JSON-serializable data only.
+    """
     param = (payload or {}).get("parameterName")
 
     client = _build_client(config, plugin_config)
@@ -44,12 +63,14 @@ def do(payload, config, plugin_config, inputs):
     if param == "schema":
         schemas = client.list_schemas()
 
+        # 시스템 스키마 숨기기(원하면 조정)
         hidden_prefixes = ("pg_",)
         hidden_exact = {"information_schema"}
         schemas = [
             s for s in schemas
             if not s.startswith(hidden_prefixes) and s not in hidden_exact
         ]
+
         return {"choices": [{"value": s, "label": s} for s in schemas]}
 
     if param == "table":
