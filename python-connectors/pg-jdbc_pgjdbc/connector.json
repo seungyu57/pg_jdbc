@@ -14,6 +14,17 @@
       "label": "Authentication",
       "type": "SEPARATOR"
     },
+
+    {
+      "name": "jar_path",
+      "label": "JDBC driver jar path",
+      "type": "STRING",
+      "defaultValue": "/data/test_ssg/postgresql-42.7.10.jar",
+      "mandatory": true,
+      "visibilityCondition": "0",
+      "description": "(숨김) 서버에 고정된 JDBC 드라이버 경로를 사용합니다."
+    },
+
     {
       "name": "user",
       "label": "User",
