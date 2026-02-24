@@ -1,3 +1,0 @@
-pg-jdbc-lib==0.1.0
-jpype1==1.6.0
-JayDeBeApi==1.2.3
