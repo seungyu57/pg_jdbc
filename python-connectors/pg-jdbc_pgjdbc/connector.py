@@ -12,6 +12,10 @@ except Exception as e1:
     except Exception as e2:
         _IMPORT_ERR = (e1, e2)
 
+# 🔒 고정
+FIXED_HOST = "localhost"
+FIXED_PORT = 5432
+
 
 class PgJdbcConnector(Connector):
     def get_read_schema(self):
@@ -26,32 +30,25 @@ class PgJdbcConnector(Connector):
 
         jar_path = self.config.get("jar_path")
         if not jar_path:
-            raise Exception("Missing jar_path in dataset config (hidden param jar_path).")
-
-        host = self.config.get("host") or "localhost"
-        port = int(self.config.get("port") or 5432)
+            raise Exception("Missing jar_path")
 
         user = self.config.get("user")
         password = self.config.get("password")
-
         database = self.config.get("database")
         schema = self.config.get("schema")
         table = self.config.get("table")
 
-        if not database:
-            return
-        if not schema or not table:
+        if not database or not schema or not table:
             return
 
-        cfg_limit = int(self.config.get("limit", 1000))
-        limit = records_limit if records_limit is not None else cfg_limit
+        limit = int(self.config.get("limit", 1000))
         if limit == 0:
             limit = 10_000_000
 
         cfg = PgJdbcConfig(
             jar_path=jar_path,
-            host=host,
-            port=port,
+            host=FIXED_HOST,
+            port=FIXED_PORT,
             database=database,
             user=user,
             password=password

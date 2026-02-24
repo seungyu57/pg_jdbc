@@ -1,6 +1,6 @@
 {
   "meta": {
-    "label": "PostgreSQL(JDBC) test",
+    "label": "PostgreSQL(JDBC)",
     "description": "Read PostgreSQL tables through JDBC",
     "icon": "icon-database"
   },
@@ -21,38 +21,7 @@
       "type": "STRING",
       "defaultValue": "/data/test_ssg/postgresql-42.7.10.jar",
       "mandatory": true,
-      "visibilityCondition": "0",
-      "description": "(숨김) 서버에 고정된 JDBC 드라이버 경로를 사용합니다."
-    },
-
-    {
-      "name": "host",
-      "label": "Host",
-      "type": "STRING",
-      "defaultValue": "localhost",
-      "mandatory": true
-    },
-    {
-      "name": "port",
-      "label": "Port",
-      "type": "INT",
-      "defaultValue": 5432,
-      "mandatory": true
-    },
-
-    {
-      "name": "user",
-      "label": "User",
-      "type": "STRING",
-      "mandatory": true,
-      "description": "PostgreSQL 사용자명"
-    },
-    {
-      "name": "password",
-      "label": "Password",
-      "type": "PASSWORD",
-      "mandatory": true,
-      "description": "PostgreSQL 비밀번호"
+      "visibilityCondition": "0"
     },
 
     {
@@ -60,8 +29,20 @@
       "label": "Admin DB (for listing databases)",
       "type": "STRING",
       "defaultValue": "postgres",
-      "mandatory": true,
-      "description": "DB 목록 조회에 사용할 DB (대개 postgres 또는 template1)"
+      "mandatory": true
+    },
+
+    {
+      "name": "user",
+      "label": "User",
+      "type": "STRING",
+      "mandatory": true
+    },
+    {
+      "name": "password",
+      "label": "Password",
+      "type": "PASSWORD",
+      "mandatory": true
     },
 
     {
@@ -70,8 +51,7 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["host", "port", "user", "password", "admin_db"],
-      "description": "User/Password 입력 후 DB 목록이 자동 갱신됩니다."
+      "triggerParameters": ["user", "password", "admin_db"]
     },
 
     {
@@ -80,26 +60,23 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["database", "host", "port", "user", "password"],
-      "description": "Database 선택 후 스키마 목록이 자동 갱신됩니다."
+      "triggerParameters": ["database", "user", "password"]
     },
+
     {
       "name": "table",
       "label": "Table",
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["schema", "database", "host", "port", "user", "password"],
-      "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
+      "triggerParameters": ["schema", "database", "user", "password"]
     },
 
     {
       "name": "limit",
       "label": "Preview / read limit (0 = no limit)",
       "type": "INT",
-      "defaultValue": 1000,
-      "mandatory": false,
-      "description": "0이면 제한 없음(대용량 주의)."
+      "defaultValue": 1000
     }
   ]
 }
