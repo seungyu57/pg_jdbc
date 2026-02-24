@@ -1,9 +1,9 @@
 {
   "id": "pg-jdbc",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "meta": {
     "label": "Pg jdbc",
-    "description": "",
+    "description": "PostgreSQL(JDBC))",
     "author": "ssg",
     "icon": "fas fa-puzzle-piece",
     "recipesCategory": "",
