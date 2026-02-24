@@ -10,8 +10,8 @@
   "paramsPythonSetup": "params.py",
   "params": [
     {
-      "name": "sep_auth",
-      "label": "Authentication",
+      "name": "sep_conn",
+      "label": "Connection",
       "type": "SEPARATOR"
     },
 
@@ -23,6 +23,21 @@
       "mandatory": true,
       "visibilityCondition": "0",
       "description": "(숨김) 서버에 고정된 JDBC 드라이버 경로를 사용합니다."
+    },
+
+    {
+      "name": "host",
+      "label": "Host",
+      "type": "STRING",
+      "defaultValue": "localhost",
+      "mandatory": true
+    },
+    {
+      "name": "port",
+      "label": "Port",
+      "type": "INT",
+      "defaultValue": 5432,
+      "mandatory": true
     },
 
     {
@@ -39,14 +54,34 @@
       "mandatory": true,
       "description": "PostgreSQL 비밀번호"
     },
+
+    {
+      "name": "admin_db",
+      "label": "Admin DB (for listing databases)",
+      "type": "STRING",
+      "defaultValue": "postgres",
+      "mandatory": true,
+      "description": "DB 목록 조회에 사용할 DB (대개 postgres 또는 template1)"
+    },
+
+    {
+      "name": "database",
+      "label": "Database",
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["host", "port", "user", "password", "admin_db"],
+      "description": "User/Password 입력 후 DB 목록이 자동 갱신됩니다."
+    },
+
     {
       "name": "schema",
       "label": "Schema",
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["user", "password"],
-      "description": "User/Password 입력 후 스키마 목록이 자동 갱신됩니다."
+      "triggerParameters": ["database", "host", "port", "user", "password"],
+      "description": "Database 선택 후 스키마 목록이 자동 갱신됩니다."
     },
     {
       "name": "table",
@@ -54,9 +89,10 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["schema", "user", "password"],
+      "triggerParameters": ["schema", "database", "host", "port", "user", "password"],
       "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
     },
+
     {
       "name": "limit",
       "label": "Preview / read limit (0 = no limit)",
