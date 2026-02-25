@@ -1,35 +1,15 @@
 {
   "id": "pg-jdbc",
-  "version": "0.0.5",
+  "version": "0.0.4",
   "meta": {
     "label": "Pg jdbc",
-    "description": "PostgreSQL JDBC dataset connector",
+    "description": "PostgreSQL tables through JDBC (credential preset, library in code env)",
     "author": "ssg",
-    "icon": "fas fa-puzzle-piece"
+    "icon": "fas fa-puzzle-piece",
+    "tags": ["JDBC", "PostgreSQL"],
+    "licenseInfo": "Apache Software License",
+    "supportLevel": "NOT_SUPPORTED"
   },
-
-  "parameterSets": [
-    {
-      "id": "jdbc-basic-auth",
-      "label": "PostgreSQL Credentials",
-      "description": "User/password for PostgreSQL JDBC connection",
-      "params": [
-        {
-          "name": "user",
-          "label": "User",
-          "type": "STRING",
-          "mandatory": true
-        },
-        {
-          "name": "password",
-          "label": "Password",
-          "type": "PASSWORD",
-          "mandatory": true
-        }
-      ]
-    }
-  ],
-
   "components": [
     {
       "id": "pgjdbc",
