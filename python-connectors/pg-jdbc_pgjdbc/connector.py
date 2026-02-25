@@ -6,18 +6,10 @@ from pg_jdbc_lib import PgJdbcClient, PgJdbcConfig
 
 
 class PgJdbcConnector(Connector):
-    """
-    Dataiku Custom Python Dataset Connector (PostgreSQL via JDBC)
-    - get_read_schema(): Dataiku가 테스트/스키마 조회 시 호출
-    - generate_rows(): 실제 데이터 읽을 때 호출
-    """
 
     def __init__(self, config, plugin_config):
         super().__init__(config, plugin_config)
 
-    # =========================
-    # 내부: config -> PgJdbcConfig 생성
-    # =========================
     def make_cfg(self) -> PgJdbcConfig:
         jar_path = "/data/jdbc/postgresql-42.7.10.jar"
         host = "localhost"
@@ -62,9 +54,8 @@ class PgJdbcConnector(Connector):
         cfg = self.make_cfg()
         client = PgJdbcClient(cfg)
 
-        cols = client.infer_schema()   # [{"name":..,"type":..}, ...]
-        return {"columns": cols}       # ✅ Dataiku가 안정적으로 받는 포맷
-
+        cols = client.infer_schema()
+        return {"columns": cols}
     # =========================
     # Dataiku가 실제 데이터를 읽을 때
     # =========================
@@ -81,7 +72,6 @@ class PgJdbcConnector(Connector):
         sch = cfg.schema
         tbl = cfg.table
 
-        # Dataiku가 limit을 주면 그걸 우선 적용
         lim = records_limit if records_limit is not None else cfg.default_limit
 
         sql = f'SELECT * FROM "{sch}"."{tbl}"'
