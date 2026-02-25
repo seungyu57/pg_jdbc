@@ -14,7 +14,7 @@ class PgJdbcConnector(Connector):
 
         jar_path = "/data/jdbc/postgresql-42.7.10.jar"
 
-        host = self.config.get("host")
+        host = self.config.get("host","localhost")
         port = int(self.config.get("port", 5432))
         database = self.config.get("database", "dataiku")
         schema = self.config.get("schema", "public")
