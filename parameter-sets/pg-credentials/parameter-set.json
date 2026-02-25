@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "PostgreSQL JDBC Credentials",
-    "description": "Preset for PostgreSQL JDBC authentication. Password is stored securely by DSS.",
+    "description": "Preset for PostgreSQL JDBC authentication. User and password are stored securely by DSS.",
     "icon": "icon-lock"
   },
   "defaultDefinableInline": true,
@@ -9,20 +9,13 @@
   "pluginParams": [],
   "params": [
     {
-      "name": "user",
-      "label": "User",
-      "type": "STRING",
-      "description": "Database username",
-      "mandatory": true
-    },
-    {
-      "name": "password",
-      "label": "Password",
+      "name": "pg",
+      "label": "PostgreSQL Credentials",
       "type": "CREDENTIAL_REQUEST",
       "credentialRequestSettings": {
-        "type": "SINGLE_FIELD"
+        "type": "USER_PASSWORD"
       },
-      "description": "Database password (stored securely by DSS)",
+      "description": "Database user/password (stored securely by DSS)",
       "mandatory": true
     }
   ]
