@@ -16,21 +16,21 @@
     },
 
     {
-      "name": "jar_path",
-      "label": "JDBC driver jar path",
-      "type": "STRING",
-      "mandatory": false,
-      "visibilityCondition": "0",
-      "description": "(숨김) 기본은 plugin.json의 config.jar_path를 사용합니다."
-    },
-
-    {
       "name": "pg_credentials",
       "label": "Credentials preset",
       "type": "PRESET",
       "parameterSetId": "jdbc-basic-auth",
       "mandatory": true,
-      "description": "Dataiku preset에 저장된 User/Password를 사용합니다."
+      "description": "Select a preset that contains PostgreSQL user/password."
+    },
+
+    {
+      "name": "jar_path",
+      "label": "JDBC driver jar path",
+      "type": "STRING",
+      "mandatory": false,
+      "visibilityCondition": "0",
+      "description": "(Hidden) Uses plugin.json config.jar_path by default."
     },
 
     {
@@ -39,8 +39,8 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["pg_credentials"],
-      "description": "Credential 선택 후 스키마 목록이 자동 갱신됩니다."
+      "triggerParameters": ["pg_credentials", "jar_path"],
+      "description": "Schema list refreshes after selecting credentials."
     },
     {
       "name": "table",
@@ -48,8 +48,8 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["schema", "pg_credentials"],
-      "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
+      "triggerParameters": ["schema", "pg_credentials", "jar_path"],
+      "description": "Table list refreshes after selecting schema."
     },
 
     {
