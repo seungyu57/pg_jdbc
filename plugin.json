@@ -3,13 +3,16 @@
   "version": "0.0.4",
   "meta": {
     "label": "Pg jdbc",
-    "description": "PostgreSQL(JDBC))",
+    "description": "PostgreSQL JDBC dataset connector (preset credentials)",
     "author": "ssg",
     "icon": "fas fa-puzzle-piece",
     "recipesCategory": "",
     "tags": [],
     "url": "",
     "licenseInfo": "Apache Software License"
+  },
+  "config": {
+    "jar_path": "/data/test_ssg/postgresql-42.7.10.jar"
   },
   "components": [
     {

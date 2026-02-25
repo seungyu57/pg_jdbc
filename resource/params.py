@@ -1,3 +1,11 @@
+# resource/params.py
+
+FIXED_HOST = "localhost"
+FIXED_PORT = 5432
+FIXED_DB = "dataiku"
+FALLBACK_JAR_PATH = "/data/test_ssg/postgresql-42.7.10.jar"
+
+
 def _import_pg_jdbc():
     try:
         from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
@@ -7,29 +15,42 @@ def _import_pg_jdbc():
         return PgJdbcConfig, PgJdbcClient
 
 
-FIXED_HOST = "localhost"
-FIXED_PORT = 5432
-
-
-def _build_client(config, database):
-    PgJdbcConfig, PgJdbcClient = _import_pg_jdbc()
-
-    jar_path = config.get("jar_path")
-    user = config.get("user")
-    password = config.get("password")
-
-    if not jar_path:
-        raise Exception("jar_path missing (hidden param).")
+def _get_basic_auth_from_preset(config):
+    preset = (config or {}).get("pg_credentials") or {}
+    user = preset.get("user")
+    password = preset.get("password")
     if not user or not password:
+        return None, None
+    return user, password
+
+
+def _get_jar_path(config, plugin_config):
+    return (
+        (config or {}).get("jar_path")
+        or (plugin_config or {}).get("jar_path")
+        or FALLBACK_JAR_PATH
+    )
+
+
+def _build_client(config, plugin_config):
+    try:
+        PgJdbcConfig, PgJdbcClient = _import_pg_jdbc()
+    except Exception:
         return None
-    if not database:
+
+    jar_path = _get_jar_path(config, plugin_config)
+    if not jar_path:
+        return None
+
+    user, password = _get_basic_auth_from_preset(config)
+    if not user or not password:
         return None
 
     cfg = PgJdbcConfig(
         jar_path=jar_path,
         host=FIXED_HOST,
         port=FIXED_PORT,
-        database=database,
+        database=FIXED_DB,
         user=user,
         password=password
     )
@@ -37,37 +58,28 @@ def _build_client(config, database):
 
 
 def do(payload, config, plugin_config, inputs):
+    """
+    MUST return JSON-serializable data only.
+    """
     param = (payload or {}).get("parameterName")
 
-    if param == "database":
-        admin_db = config.get("admin_db") or "postgres"
+    client = _build_client(config, plugin_config)
+    if client is None:
+        return {"choices": []}
 
-        # ✅ 여기서 접속 실패하면 에러를 띄워서 원인 확인
-        client = _build_client(config, admin_db)
-        if client is None:
+    if param == "schema":
+        schemas = client.list_schemas()
+        # 시스템 스키마 숨김(원하면 풀어도 됨)
+        hidden_prefixes = ("pg_",)
+        hidden_exact = {"information_schema"}
+        schemas = [s for s in schemas if not s.startswith(hidden_prefixes) and s not in hidden_exact]
+        return {"choices": [{"value": s, "label": s} for s in schemas]}
+
+    if param == "table":
+        schema = (config or {}).get("schema")
+        if not schema:
             return {"choices": []}
+        tables = client.list_tables(schema)
+        return {"choices": [{"value": t, "label": t} for t in tables]}
 
-        sql = """
-            SELECT datname
-            FROM pg_database
-            WHERE datistemplate = false
-              AND datallowconn = true
-            ORDER BY datname
-        """
-
-        # ✅ client가 SQL 실행 메서드를 제공해야 함
-        if hasattr(client, "query"):
-            rows = client.query(sql)
-        elif hasattr(client, "execute"):
-            rows = client.execute(sql)
-        else:
-            raise Exception(
-                "PgJdbcClient에 SQL 실행 메서드가 없음. "
-                "pg-jdbc-lib에 query(sql) 또는 execute(sql) 추가해야 DB 목록 조회 가능"
-            )
-
-        dbs = [r[0] for r in rows]
-        return {"choices": [{"value": d, "label": d} for d in dbs]}
-
-    # schema/table은 너 기존 코드 유지해도 됨
     return {"choices": []}

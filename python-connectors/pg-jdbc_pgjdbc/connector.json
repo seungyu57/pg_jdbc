@@ -1,40 +1,63 @@
 {
-  "id": "pgjdbc",
-  "kind": "DATASET",
   "meta": {
     "label": "PostgreSQL(JDBC)",
-    "description": "Read PostgreSQL tables through JDBC (independent connector + external wheel)"
+    "description": "Read PostgreSQL tables through JDBC",
+    "icon": "icon-database"
   },
+  "readable": true,
+  "writable": false,
+
+  "paramsPythonSetup": "params.py",
   "params": [
     {
-      "name": "jar_path",
-      "label": "PostgreSQL JDBC jar path",
-      "type": "STRING",
-      "mandatory": true,
-      "description": "Absolute path to postgresql JDBC jar on DSS server"
+      "name": "sep_conn",
+      "label": "Connection",
+      "type": "SEPARATOR"
     },
-    { "name": "host", "label": "Host", "type": "STRING", "mandatory": true },
-    { "name": "port", "label": "Port", "type": "INT", "defaultValue": 5432, "mandatory": true },
-    { "name": "database", "label": "Database", "type": "STRING", "mandatory": true },
-    { "name": "schema", "label": "Schema", "type": "STRING", "defaultValue": "public", "mandatory": true },
-    { "name": "table", "label": "Table", "type": "STRING", "mandatory": true },
 
     {
-      "name": "dbCreds",
-      "label": "DB Credentials (Preset)",
+      "name": "jar_path",
+      "label": "JDBC driver jar path",
+      "type": "STRING",
+      "mandatory": false,
+      "visibilityCondition": "0",
+      "description": "(숨김) 기본은 plugin.json의 config.jar_path를 사용합니다."
+    },
+
+    {
+      "name": "pg_credentials",
+      "label": "Credentials preset",
       "type": "PRESET",
-      "parameterSetId": "db-credentials",
-      "mandatory": true
+      "parameterSetId": "jdbc-basic-auth",
+      "mandatory": true,
+      "description": "Dataiku preset에 저장된 User/Password를 사용합니다."
+    },
+
+    {
+      "name": "schema",
+      "label": "Schema",
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["pg_credentials"],
+      "description": "Credential 선택 후 스키마 목록이 자동 갱신됩니다."
+    },
+    {
+      "name": "table",
+      "label": "Table",
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["schema", "pg_credentials"],
+      "description": "Schema 선택 후 테이블 목록이 자동 갱신됩니다."
     },
 
     {
       "name": "limit",
-      "label": "Row limit",
+      "label": "Preview / read limit (0 = no limit)",
       "type": "INT",
-      "defaultValue": 0,
-      "mandatory": false,
-      "description": "0 means no limit"
+      "defaultValue": 1000,
+      "mandatory": false
     }
-  ],
-  "pythonConnectorClass": "connector.PgJdbcConnector"
+  ]
 }
