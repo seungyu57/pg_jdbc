@@ -18,6 +18,7 @@ class PgJdbcConnector(Connector):
         
         user = self.config.get("user","dataiku")
         password = self.config.get("password", "")
+        
         schema = self.config.get("schema", "public")
         table = self.config.get("table")
 
