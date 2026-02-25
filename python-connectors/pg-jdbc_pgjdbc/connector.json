@@ -17,15 +17,18 @@
     {
       "name": "schema",
       "label": "Schema",
-      "type": "STRING",
-      "defaultValue": "public",
-      "mandatory": true
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["host", "port", "database", "pg_credentials"]
     },
     {
       "name": "table",
       "label": "Table",
-      "type": "STRING",
-      "mandatory": true
+      "type": "SELECT",
+      "mandatory": true,
+      "getChoicesFromPython": true,
+      "triggerParameters": ["host", "port", "database", "pg_credentials", "schema"]
     }
   ]
 }
