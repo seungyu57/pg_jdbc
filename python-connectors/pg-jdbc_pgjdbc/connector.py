@@ -4,7 +4,7 @@ from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
 FIXED_HOST = "localhost"
 FIXED_PORT = 5432
 FIXED_DB = "dataiku"
-FIXED_JAR = "/data/jdbc/postgresql.jar"
+FIXED_JAR = "/data/jdbc/postgresql-42.7.10.jar"
 
 
 class PgJdbcConnector(Connector):
