@@ -10,9 +10,11 @@ FIXED_JAR = "/data/jdbc/postgresql-42.7.10.jar"
 class PgJdbcConnector(Connector):
 
     def get_read_schema(self):
-        cfg = self._build_cfg()
+        cfg = self._make_cfg()
         client = PgJdbcClient(cfg)
-        return client.infer_schema()
+        cols = client.infer_schema()
+
+        return {"columns": cols}
 
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None, partition_id=None, records_limit=None):
         cfg = self._build_cfg()
