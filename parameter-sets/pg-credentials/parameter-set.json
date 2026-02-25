@@ -9,13 +9,6 @@
   "pluginParams": [],
   "params": [
     {
-      "name": "user",
-      "label": "User",
-      "type": "STRING",
-      "description": "Database username",
-      "mandatory": true
-    },
-    {
       "name": "password",
       "label": "Password",
       "type": "CREDENTIAL_REQUEST",
