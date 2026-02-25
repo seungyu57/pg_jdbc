@@ -1,86 +1,61 @@
 from dataiku.connector import Connector
 
-try:
-    from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
-except Exception:
-    # 일부 패키징에서 루트 export를 쓰는 경우 대비
-    from pg_jdbc_lib import PgJdbcConfig, PgJdbcClient
+# ✅ 라이브러리 분리: code env에 설치된 wheel에서 import
+from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
 
 
-# 🔒 고정값 (UI에서 숨김)
-FIXED_HOST = "localhost"
-FIXED_PORT = 5432
-FIXED_DB = "dataiku"
-
-# 최후의 안전장치 (plugin.json에 jar_path 넣었으면 보통 이거 쓸 일 없음)
-FALLBACK_JAR_PATH = "/data/test_ssg/postgresql-42.7.10.jar"
-
-
-def _get_basic_auth_from_preset(cfg: dict):
-    preset = (cfg or {}).get("pg_credentials") or {}
-    user = preset.get("user")
-    password = preset.get("password")
-    if not user or not password:
-        raise Exception("Missing credentials in preset: pg_credentials.user/password")
-    return user, password
-
-
-def _get_jar_path(connector_self, dataset_cfg: dict):
-    # 1) dataset config (숨김 param) 우선
-    jar_path = (dataset_cfg or {}).get("jar_path")
-    if jar_path:
-        return jar_path
-
-    # 2) plugin config가 있으면 거기서
-    plugin_cfg = getattr(connector_self, "plugin_config", None) or {}
-    jar_path = (plugin_cfg or {}).get("jar_path")
-    if jar_path:
-        return jar_path
-
-    # 3) 최후 fallback
-    return FALLBACK_JAR_PATH
+DEFAULT_PG_JAR = "/data/jdbc/postgresql.jar"  # ✅ 버전 선택 제거: 고정 jar 경로
 
 
 class PgJdbcConnector(Connector):
+    """
+    Thin Dataiku connector wrapper.
+    Business logic lives in pg_jdbc_lib (installed in code env).
+    """
+
     def get_read_schema(self):
-        return None
+        # 선택: 라이브러리에서 schema infer 기능이 있으면 여기서 호출해도 됨.
+        # Dataiku가 비어있는 schema를 허용하지 않는 경우가 있어 infer_schema를 쓰는 걸 추천.
+        cfg = self._build_cfg()
+        client = PgJdbcClient(cfg)
+        return client.infer_schema()
 
-    def generate_rows(
-        self,
-        dataset_schema=None,
-        dataset_partitioning=None,
-        partition_id=None,
-        records_limit=None
-    ):
-        jar_path = _get_jar_path(self, self.config)
-        if not jar_path:
-            raise Exception("Missing jar_path (plugin.json config.jar_path recommended)")
+    def generate_rows(self, dataset_schema=None, dataset_partitioning=None, partition_id=None, records_limit=None):
+        cfg = self._build_cfg()
+        client = PgJdbcClient(cfg)
 
-        user, password = _get_basic_auth_from_preset(self.config)
+        for row in client.read_rows(limit=records_limit):
+            yield row
 
-        schema = self.config.get("schema")
+    def _build_cfg(self) -> PgJdbcConfig:
+        host = self.config.get("host")
+        port = int(self.config.get("port", 5432))
+
+        schema = self.config.get("schema", "public")
         table = self.config.get("table")
 
-        # schema/table 선택 전 호출되면 조용히 종료
-        if not schema or not table:
-            return
+        fixed_db = self.config.get("fixed_db", "dataiku")
 
-        cfg_limit = int(self.config.get("limit", 1000))
-        limit = records_limit if records_limit is not None else cfg_limit
-        if limit == 0:
-            limit = 10_000_000
+        jar_path = self.config.get("jar_path") or DEFAULT_PG_JAR
 
-        cfg = PgJdbcConfig(
-            jar_path=jar_path,
-            host=FIXED_HOST,
-            port=FIXED_PORT,
-            database=FIXED_DB,
+        creds = self.config.get("pg_credentials") or {}
+        user = creds.get("user")
+        password = creds.get("password")
+
+        if not host:
+            raise Exception("Missing host")
+        if not table:
+            raise Exception("Missing table")
+        if not user or not password:
+            raise Exception("Missing credentials preset (user/password).")
+
+        return PgJdbcConfig(
+            host=host,
+            port=port,
+            database=fixed_db,
             user=user,
-            password=password
+            password=password,
+            schema=schema,
+            table=table,
+            jar_path=jar_path
         )
-
-        cli = PgJdbcClient(cfg)
-        cols, rows = cli.fetch_table(schema=schema, table=table, limit=limit)
-
-        for r in rows:
-            yield dict(zip(cols, r))
