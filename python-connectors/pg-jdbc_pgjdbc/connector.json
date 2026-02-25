@@ -6,6 +6,9 @@
   },
   "readable": true,
   "writable": false,
+
+  "paramsPythonSetup": "pg_choices.py",
+
   "params": [
     {
       "name": "pg_credentials",
@@ -20,7 +23,7 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["host", "port", "database", "pg_credentials"]
+      "triggerParameters": ["pg_credentials"]
     },
     {
       "name": "table",
@@ -28,7 +31,7 @@
       "type": "SELECT",
       "mandatory": true,
       "getChoicesFromPython": true,
-      "triggerParameters": ["host", "port", "database", "pg_credentials", "schema"]
+      "triggerParameters": ["pg_credentials", "schema"]
     }
   ]
 }
