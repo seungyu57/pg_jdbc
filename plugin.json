@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "meta": {
     "label": "Pg jdbc",
-    "description": "Read PostgreSQL tables through JDBC (with credentials preset)",
+    "description": "PostgreSQL dataset via JDBC (credentials preset, library in code env)",
     "author": "ssg",
     "icon": "fas fa-puzzle-piece",
     "tags": ["JDBC", "PostgreSQL"],
@@ -16,7 +16,7 @@
       "type": "DATASET",
       "meta": {
         "label": "PostgreSQL(JDBC)",
-        "description": "Read PostgreSQL tables through JDBC"
+        "description": "Read PostgreSQL tables through JDBC (custom)"
       }
     }
   ]

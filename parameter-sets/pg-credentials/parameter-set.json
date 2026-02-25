@@ -12,6 +12,7 @@
       "name": "user",
       "label": "User",
       "type": "STRING",
+      "description": "Database username",
       "mandatory": true
     },
     {
@@ -19,6 +20,7 @@
       "label": "Password",
       "type": "CREDENTIAL_REQUEST",
       "credentialRequestSettings": { "type": "SINGLE_FIELD" },
+      "description": "Database password (stored securely by DSS)",
       "mandatory": true
     }
   ]
