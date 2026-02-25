@@ -1,19 +1,35 @@
 {
   "id": "pg-jdbc",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "meta": {
     "label": "Pg jdbc",
-    "description": "PostgreSQL JDBC dataset connector (preset credentials)",
+    "description": "PostgreSQL JDBC dataset connector",
     "author": "ssg",
-    "icon": "fas fa-puzzle-piece",
-    "recipesCategory": "",
-    "tags": [],
-    "url": "",
-    "licenseInfo": "Apache Software License"
+    "icon": "fas fa-puzzle-piece"
   },
-  "config": {
-    "jar_path": "/data/test_ssg/postgresql-42.7.10.jar"
-  },
+
+  "parameterSets": [
+    {
+      "id": "jdbc-basic-auth",
+      "label": "PostgreSQL Credentials",
+      "description": "User/password for PostgreSQL JDBC connection",
+      "params": [
+        {
+          "name": "user",
+          "label": "User",
+          "type": "STRING",
+          "mandatory": true
+        },
+        {
+          "name": "password",
+          "label": "Password",
+          "type": "PASSWORD",
+          "mandatory": true
+        }
+      ]
+    }
+  ],
+
   "components": [
     {
       "id": "pgjdbc",
