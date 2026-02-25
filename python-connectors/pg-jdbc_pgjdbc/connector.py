@@ -1,8 +1,7 @@
 from dataiku.connector import Connector
 from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
 
-# 🔥 여기서 고정값 박아버림
-FIXED_HOST = "192.168.0.10"
+FIXED_HOST = "localhost"
 FIXED_PORT = 5432
 FIXED_DB = "dataiku"
 FIXED_JAR = "/data/jdbc/postgresql.jar"
