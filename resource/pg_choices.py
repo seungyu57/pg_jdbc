@@ -26,7 +26,7 @@ def _extract_user_password(config: dict):
 
 
 def _connect(config: dict):
-    host = config.get("host")
+    host = config.get("host","localhost")
     port = int(config.get("port", 5432))
     database = config.get("database", "dataiku")
 
