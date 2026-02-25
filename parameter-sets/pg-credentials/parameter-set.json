@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "PostgreSQL JDBC Credentials",
-    "description": "Preset for PostgreSQL JDBC authentication. Credentials are stored securely by DSS.",
+    "description": "Preset for PostgreSQL JDBC authentication. Password is stored securely by DSS.",
     "icon": "icon-lock"
   },
   "defaultDefinableInline": true,
@@ -19,7 +19,9 @@
       "name": "password",
       "label": "Password",
       "type": "CREDENTIAL_REQUEST",
-      "credentialRequestSettings": { "type": "SINGLE_FIELD" },
+      "credentialRequestSettings": {
+        "type": "SINGLE_FIELD"
+      },
       "description": "Database password (stored securely by DSS)",
       "mandatory": true
     }
