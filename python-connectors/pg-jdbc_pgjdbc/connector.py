@@ -16,8 +16,9 @@ class PgJdbcConnector(Connector):
         port = int(self.config.get("port", 5432))
         database = self.config.get("database", "dataiku")
         
-        user = self.config.get("user")
-        password = self.config.get("password")
+        creds = self.config.get("pg", {})
+        user = creds.get("user") or creds.get("login")
+        password = creds.get("password")
         
         schema = self.config.get("schema", "public")
         table = self.config.get("table")
