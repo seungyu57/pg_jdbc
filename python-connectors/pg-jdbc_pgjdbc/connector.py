@@ -1,18 +1,14 @@
 from dataiku.connector import Connector
-
-# ✅ 라이브러리 분리: code env에 설치된 wheel에서 import
 from pg_jdbc_lib.client import PgJdbcConfig, PgJdbcClient
 
-DEFAULT_PG_JAR = "/data/jdbc/postgresql.jar"  # ✅ 버전 선택 제거: 고정 jar 경로
+# 🔥 여기서 고정값 박아버림
+FIXED_HOST = "192.168.0.10"
+FIXED_PORT = 5432
+FIXED_DB = "dataiku"
+FIXED_JAR = "/data/jdbc/postgresql.jar"
 
 
 class PgJdbcConnector(Connector):
-    """
-    Thin Dataiku dataset connector.
-    - Credentials come from DSS preset (PRESET + CREDENTIAL_REQUEST)
-    - JDBC logic is in pg_jdbc_lib (installed in code env)
-    - DB selection removed: uses fixed_db only
-    """
 
     def get_read_schema(self):
         cfg = self._build_cfg()
@@ -22,39 +18,27 @@ class PgJdbcConnector(Connector):
     def generate_rows(self, dataset_schema=None, dataset_partitioning=None, partition_id=None, records_limit=None):
         cfg = self._build_cfg()
         client = PgJdbcClient(cfg)
-
         for row in client.read_rows(limit=records_limit):
             yield row
 
-    def _build_cfg(self) -> PgJdbcConfig:
-        host = self.config.get("host")
-        port = int(self.config.get("port", 5432))
-
-        schema = self.config.get("schema", "public")
+    def _build_cfg(self):
+        schema = self.config.get("schema")
         table = self.config.get("table")
-
-        fixed_db = self.config.get("fixed_db", "dataiku")
-
-        jar_path = self.config.get("jar_path") or DEFAULT_PG_JAR
 
         creds = self.config.get("pg_credentials") or {}
         user = creds.get("user")
         password = creds.get("password")
 
-        if not host:
-            raise Exception("Missing host")
-        if not table:
-            raise Exception("Missing table")
         if not user or not password:
-            raise Exception("Missing credentials preset (user/password).")
+            raise Exception("Missing credentials preset")
 
         return PgJdbcConfig(
-            host=host,
-            port=port,
-            database=fixed_db,
+            host=FIXED_HOST,
+            port=FIXED_PORT,
+            database=FIXED_DB,
             user=user,
             password=password,
             schema=schema,
             table=table,
-            jar_path=jar_path
+            jar_path=FIXED_JAR
         )
