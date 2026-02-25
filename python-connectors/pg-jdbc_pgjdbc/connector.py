@@ -19,7 +19,7 @@ class PgJdbcConnector(Connector):
     # 내부: config -> PgJdbcConfig 생성
     # =========================
     def make_cfg(self) -> PgJdbcConfig:
-        jar_path = "/data/jdbc/postgresql-42.7.3.jar"
+        jar_path = "/data/jdbc/postgresql-42.7.10.jar"
         host = "localhost"
         port = int(self.config.get("port", 5432))
         database = self.config.get("database", "dataiku")
