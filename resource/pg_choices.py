@@ -4,7 +4,7 @@ import os
 import jaydebeapi
 
 
-JAR_PATH = "/data/jdbc/postgresql-42.7.3.jar"  # 고정 경로
+JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"  # 고정 경로
 
 
 def _extract_user_password(config: dict):
@@ -92,16 +92,7 @@ def _list_tables(config: dict, schema: str):
 
 
 def do(payload, config, plugin_config, inputs):
-    """
-    Dataiku dynamic select entrypoint.
-    공식 문서 형태: do(...) -> {"choices": [...]}
-    """
-    # 디버깅 필요하면 잠깐 켜기
-    # print("payload=", payload)
-    # print("config=", config)
 
-    # 어떤 파라미터가 현재 choices를 요청하는지 식별
-    # DSS 버전/맥락에 따라 payload 키가 조금 다를 수 있어 방어적으로 읽음
     target_param = (
         payload.get("parameterName")
         or payload.get("paramName")
