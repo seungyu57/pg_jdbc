@@ -11,24 +11,21 @@ class PgJdbcConnector(Connector):
         super().__init__(config, plugin_config)
 
     def make_cfg(self) -> PgJdbcConfig:
+
         jar_path = "/data/jdbc/postgresql-42.7.10.jar"
-        host = "localhost"
+
+        host = self.config.get("host")
         port = int(self.config.get("port", 5432))
         database = self.config.get("database", "dataiku")
-        
-        creds = self.config.get("pg", {})
-        user = creds.get("user") or creds.get("login")
-        password = creds.get("password")
-        
         schema = self.config.get("schema", "public")
         table = self.config.get("table")
 
-        fetch_size = int(self.config.get("fetch_size", 1000))
-        default_limit = self.config.get("limit")
-        default_limit = int(default_limit) if default_limit not in (None, "", "null") else None
+        # ✅ preset credentials (중첩 구조)
+        preset_block = self.config.get("pg_credentials") or {}
+        cred_block = preset_block.get("pg") or {}
+        user = cred_block.get("user") or cred_block.get("login")
+        password = cred_block.get("password", "")
 
-        if not jar_path:
-            raise ValueError("Missing jar_path (PostgreSQL JDBC driver .jar)")
         if not host:
             raise ValueError("Missing host")
         if not user:
@@ -45,8 +42,6 @@ class PgJdbcConnector(Connector):
             password=password,
             schema=schema,
             table=table,
-            fetch_size=fetch_size,
-            default_limit=default_limit,
         )
 
     # =========================
