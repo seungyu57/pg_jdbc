@@ -7,8 +7,7 @@ import jaydebeapi
 
 
 CANDIDATE_JAR_RELATIVE_PATHS = [
-    os.path.join("resource", "jdbc", "postgresql-42.7.10.jar"),
-    os.path.join("resource", "postgresql-42.7.10.jar"),
+    os.path.join("resource1", "jdbc", "postgresql-42.7.10.jar"),
 ]
 LEGACY_JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"
 PLUGIN_ID = "pg-jdbc"
@@ -49,9 +48,7 @@ def _resolve_jar_path() -> str:
     # 2) Try known DSS plugin locations (dev, then installed).
     known_patterns = [
         f"/data/dataiku/DATA_DIR/plugins/dev/{PLUGIN_ID}/resource/jdbc/postgresql-42.7.10.jar",
-        f"/data/dataiku/DATA_DIR/plugins/dev/{PLUGIN_ID}/resource/postgresql-42.7.10.jar",
         f"/data/dataiku/DATA_DIR/plugins/installed/{PLUGIN_ID}/resource/jdbc/postgresql-42.7.10.jar",
-        f"/data/dataiku/DATA_DIR/plugins/installed/{PLUGIN_ID}/resource/postgresql-42.7.10.jar",
     ]
     for pattern in known_patterns:
         for candidate in glob.glob(pattern):
