@@ -1,6 +1,6 @@
 {
   "meta": {
-    "label": "PostgreSQL(JDBC)1",
+    "label": "PostgreSQL(JDBC)",
     "description": "Read PostgreSQL tables through JDBC (fixed host/port)",
     "icon": "icon-database"
   },

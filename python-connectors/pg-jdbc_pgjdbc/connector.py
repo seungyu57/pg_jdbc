@@ -9,7 +9,7 @@ from pg_jdbc_lib import PgJdbcClient, PgJdbcConfig
 
 
 CANDIDATE_JAR_RELATIVE_PATHS = [
-    os.path.join("resource", "jdbc1", "postgresql-42.7.10.jar"),
+    os.path.join("resource", "jdbc", "postgresql-42.7.10.jar"),
     os.path.join("resource", "postgresql-42.7.10.jar"),
 ]
 LEGACY_JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"
