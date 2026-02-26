@@ -7,7 +7,7 @@ import jaydebeapi
 
 
 CANDIDATE_JAR_RELATIVE_PATHS = [
-    os.path.join("resource", "jdbc", "postgresql-42.7.10.jar"),
+    os.path.join("resource1", "jdbc", "postgresql-42.7.10.jar"),
     os.path.join("resource", "postgresql-42.7.10.jar"),
 ]
 LEGACY_JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"
@@ -185,4 +185,3 @@ def do(payload, config, plugin_config, inputs):
                 {"value": "", "label": f"[ERROR] {str(e)}"}
             ]
         }
-pint("good")
