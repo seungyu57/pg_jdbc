@@ -1,21 +1,77 @@
 from __future__ import annotations
 
+import glob
 import os
+
 import jaydebeapi
 
 
-JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"  # 고정 경로
+CANDIDATE_JAR_RELATIVE_PATHS = [
+    os.path.join("resource", "jdbc", "postgresql-42.7.10.jar"),
+    os.path.join("resource", "postgresql-42.7.10.jar"),
+]
+LEGACY_JAR_PATH = "/data/jdbc/postgresql-42.7.10.jar"
+PLUGIN_ID = "pg-jdbc"
+
+
+def _candidate_plugin_roots():
+    roots = []
+
+    this_file = globals().get("__file__")
+    if this_file:
+        # .../resource/pg_choices.py -> plugin root is parent of resource/
+        roots.append(os.path.abspath(os.path.join(os.path.dirname(this_file), "..")))
+
+    cwd = os.getcwd()
+    roots.extend(
+        [
+            cwd,
+            os.path.abspath(os.path.join(cwd, "..")),
+            os.path.abspath(os.path.join(cwd, "..", "..")),
+        ]
+    )
+
+    dedup = []
+    for root in roots:
+        if root not in dedup:
+            dedup.append(root)
+    return dedup
+
+
+def _resolve_jar_path() -> str:
+    # 1) Try runtime-relative candidates first.
+    for plugin_root in _candidate_plugin_roots():
+        for relative_path in CANDIDATE_JAR_RELATIVE_PATHS:
+            candidate = os.path.join(plugin_root, relative_path)
+            if os.path.isfile(candidate):
+                return candidate
+
+    # 2) Try known DSS plugin locations (dev, then installed).
+    known_patterns = [
+        f"/data/dataiku/DATA_DIR/plugins/dev/{PLUGIN_ID}/resource/jdbc/postgresql-42.7.10.jar",
+        f"/data/dataiku/DATA_DIR/plugins/dev/{PLUGIN_ID}/resource/postgresql-42.7.10.jar",
+        f"/data/dataiku/DATA_DIR/plugins/installed/{PLUGIN_ID}/resource/jdbc/postgresql-42.7.10.jar",
+        f"/data/dataiku/DATA_DIR/plugins/installed/{PLUGIN_ID}/resource/postgresql-42.7.10.jar",
+    ]
+    for pattern in known_patterns:
+        for candidate in glob.glob(pattern):
+            if os.path.isfile(candidate):
+                return candidate
+
+    # 3) Final legacy fallback.
+    if os.path.isfile(LEGACY_JAR_PATH):
+        return LEGACY_JAR_PATH
+
+    expected = " or ".join(CANDIDATE_JAR_RELATIVE_PATHS)
+    raise ValueError(
+        "PostgreSQL JDBC jar not found. "
+        f"Expected plugin resource jar ({expected}) or {LEGACY_JAR_PATH}"
+    )
 
 
 def _extract_user_password(config: dict):
     """
-    PRESET -> BASIC credential 구조에서 user/password 꺼내기
-    config 구조 예시(버전에 따라 약간 다름):
-    {
-      "pg_credentials": {
-        "pg": {"user": "...", "password": "..."}
-      }
-    }
+    Extract user/password from PRESET -> BASIC credential structure.
     """
     preset_block = config.get("pg_credentials") or {}
     cred_block = preset_block.get("pg") or {}
@@ -26,7 +82,7 @@ def _extract_user_password(config: dict):
 
 
 def _connect(config: dict):
-    host = config.get("host","localhost")
+    host = config.get("host", "localhost")
     port = int(config.get("port", 5432))
     database = config.get("database", "dataiku")
 
@@ -36,8 +92,8 @@ def _connect(config: dict):
         raise ValueError("Missing host")
     if not user:
         raise ValueError("Missing user")
-    if not os.path.isfile(JAR_PATH):
-        raise ValueError(f"PostgreSQL JDBC jar not found: {JAR_PATH}")
+
+    jar_path = _resolve_jar_path()
 
     jdbc_url = f"jdbc:postgresql://{host}:{port}/{database}"
     jdbc_props = {"user": user, "password": password or ""}
@@ -46,7 +102,7 @@ def _connect(config: dict):
         "org.postgresql.Driver",
         jdbc_url,
         jdbc_props,
-        JAR_PATH
+        jar_path,
     )
 
 
@@ -116,7 +172,6 @@ def do(payload, config, plugin_config, inputs):
                 "choices": [{"value": t, "label": t} for t in tables]
             }
 
-        # 혹시 target을 못 잡는 경우를 대비해 payload에 schema/table 힌트가 있으면 분기
         if config.get("schema") and not config.get("table"):
             tables = _list_tables(config, config["schema"])
             return {"choices": [{"value": t, "label": t} for t in tables]}
@@ -125,9 +180,9 @@ def do(payload, config, plugin_config, inputs):
         return {"choices": [{"value": s, "label": s} for s in schemas]}
 
     except Exception as e:
-        # UI가 완전히 죽지 않게 빈 리스트 반환 + 에러 표시용 라벨
         return {
             "choices": [
                 {"value": "", "label": f"[ERROR] {str(e)}"}
             ]
         }
+pint("good")
